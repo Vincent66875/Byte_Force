@@ -1,33 +1,36 @@
-# 🚑 Byte-App: Emergency Procedures Dashboard
+🚑 Byte-App: Emergency Procedures Dashboard
 
 This is a cross-platform (iOS, Android, Web) mobile application built using Expo and Expo Router for managing and displaying crucial emergency procedures quickly and clearly.
 
-## Start
+🚀 Quick Start
 
- - Follow these steps to get your local development environment up and running.
+Follow these steps to get your local development environment up and running.
 
-### Prerequisites
+Prerequisites
 
- - You need Node.js (version 18 or higher) installed on your system.
+You need Node.js (version 18 or higher) installed on your system.
 
- - Install Dependencies: Navigate to the root directory of the project and install all required packages.
+Running the App
 
- - npm install
+The easiest way to view the app is by using the Expo Go app on a physical device.
 
-### Running the App
+Install Dependencies: Navigate to the root directory of the project and install all required packages.
 
- - The easiest way to view the app is by using the Expo Go app on a physical device.
+npm install
 
- - Start the Development Server:
 
- - npx expo start
- - This command starts the Metro bundler and opens a local development dashboard in your browser.
+Start the Development Server:
 
-### View on Mobile:
+npx expo start
 
- - Download the Expo Go app on your iOS or Android phone.
 
- - Scan the QR code displayed in your terminal or web dashboard using your phone's camera.
+This command starts the Metro bundler and opens a local development dashboard in your browser.
+
+View on Mobile:
+
+Download the Expo Go app on your iOS or Android phone.
+
+Scan the QR code displayed in your terminal or web dashboard using your phone's camera.
 
 📂 Project Structure & Routing
 
