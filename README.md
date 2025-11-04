@@ -10,7 +10,7 @@ Follow these steps to set up your local development environment.
 
 ### 🧩 Prerequisites
 - [Node.js](https://nodejs.org/) **v18 or higher** installed on your system.
-- (Optional) [Expo Go](https://expo.dev/client) app installed on your **iOS** or **Android** device.
+- [Expo Go](https://expo.dev/client) app installed on your **iOS** or **Android** device.
 
 ---
 
