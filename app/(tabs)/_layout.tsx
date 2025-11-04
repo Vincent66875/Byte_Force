@@ -48,9 +48,9 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="two"
+        name="setting" // must match the file: setting.tsx
         options={{
-          title: 'Settings',
+          tabBarLabel: 'Settings', // <--- this sets the text in the bottom tab
           tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
         }}
       />

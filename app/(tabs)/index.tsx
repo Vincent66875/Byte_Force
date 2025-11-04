@@ -1,114 +1,46 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
-import React, { useMemo } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Stack, Link } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
 
-// Mock data store for procedures. In a real app, this would be fetched from an API.
-const procedureData: Record<string, { title: string; content: string[] }> = {
-  cpr: {
-    title: 'Cardiopulmonary Resuscitation (CPR)',
-    content: [
-      "Check the scene for safety and ensure the person is on a firm, flat surface.",
-      "Check for breathing. If unresponsive and not breathing, call emergency services immediately.",
-      "Start chest compressions: Place the heel of one hand in the center of the chest, and the heel of the other hand on top. Push hard and fast (100–120 compressions per minute).",
-      "If trained, perform 30 compressions followed by 2 rescue breaths.",
-      "Continue until professional help arrives or the person shows signs of life."
-    ],
-  },
-  break: {
-    title: 'Suspected Fracture (Broken Bone)',
-    content: [
-      "Keep the person still and calm. Do not move the person unless they are in immediate danger.",
-      "Immobilize the injured area using splints (if trained and materials are available) to prevent movement.",
-      "Apply ice packs wrapped in cloth to reduce swelling.",
-      "Treat for shock: Lie the person down, cover them with a blanket to maintain body temperature.",
-      "Seek medical attention immediately."
-    ],
-  },
-  // Add content for head, bleed, epipen, choke here...
-  head: {
-    title: 'Serious Head Injury',
-    content: [
-      "Call emergency services immediately.",
-      "Keep the person's head and neck still and in line with the rest of the body.",
-      "Check for bleeding. Apply gentle pressure to any bleeding wounds with a clean cloth, but do not press directly on the injury if the skull is fractured.",
-      "Monitor breathing and consciousness. If unconscious, only move if absolutely necessary to maintain airway.",
-    ],
-  },
-  bleed: {
-    title: 'Severe Bleeding',
-    content: [
-      "Protect yourself: Wear gloves if available.",
-      "Apply direct pressure to the wound using a sterile dressing or clean cloth.",
-      "Elevate the injured limb above the heart, if possible (and if it doesn't cause more pain).",
-      "Maintain pressure until help arrives. If blood soaks through the dressing, add another one on top—do not remove the original.",
-      "If bleeding is on an arm or leg and pressure does not stop it, consider a tourniquet if trained."
-    ],
-  },
-  epipen: {
-    title: 'EpiPen Administration (Anaphylaxis)',
-    content: [
-      "Call emergency services immediately.",
-      "Confirm anaphylaxis (difficulty breathing, swelling, hives, vomiting).",
-      "Remove the EpiPen from its container.",
-      "Grasp the pen in a fist, safety cap pointing up.",
-      "JAB the orange tip firmly into the middle of the outer thigh (through clothes is okay) at a right angle.",
-      "Hold in place for 3 seconds.",
-      "Remove the EpiPen. Massage the injection site for 10 seconds.",
-      "Note the time and monitor the person until help arrives."
-    ],
-  },
-  choke: {
-    title: 'Adult Choking (Conscious)',
-    content: [
-      "Ask: 'Are you choking?' Encourage them to cough.",
-      "If they can't cough, speak, or breathe, deliver 5 back blows between the shoulder blades with the heel of your hand.",
-      "If back blows fail, perform 5 abdominal thrusts (Heimlich maneuver): Stand behind the person, wrap your arms around their waist. Place a fist above their navel. Grasp your fist with your other hand. Pull sharply inward and upward.",
-      "Alternate 5 back blows and 5 abdominal thrusts until the obstruction is cleared or professional help arrives.",
-    ],
-  },
-};
-
-export default function ProcedureScreen() {
-  const { route } = useLocalSearchParams();
-  const pathKey = Array.isArray(route) ? route[0] : route;
-  const procedure = useMemo(() => procedureData[pathKey] || null, [pathKey]);
-
-  if (!procedure) {
-    // If the route key doesn't match the data, display a 404 message
-    return (
-      <View style={[styles.container, { justifyContent: 'center' }]}>
-        <Text style={styles.errorText}>Procedure "{pathKey}" not found.</Text>
-      </View>
-    );
-  }
-
-  // Set the screen title dynamically
-  const headerTitle = procedure.title.split('(')[0].trim();
-
+const procedures = [
+  { key: 'cpr', title: 'CPR', icon: <FontAwesome5 name="hands-helping" size={36} color="#E53935" /> },
+  { key: 'break', title: 'Broken Bone', icon: <MaterialCommunityIcons name="bone" size={36} color="#b380cf" /> },
+  { key: 'head', title: 'Head Injury', icon: <MaterialCommunityIcons name="head" size={36} color="#f7ce14" /> },
+  { key: 'bleed', title: 'Severe Bleeding', icon: <FontAwesome5 name="tint" size={36} color="#ff7919" /> },
+  { key: 'epipen', title: 'EpiPen', icon: <MaterialCommunityIcons name="needle" size={36} color="#326be6" /> },
+  { key: 'choke', title: 'Choking', icon: <MaterialCommunityIcons name="lungs" size={36} color="#32e64a" /> },
+];
+export default function ProcedureListScreen() {
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
-      {/* Set the header title using Stack.Screen */}
+    <>
       <Stack.Screen 
         options={{ 
-          title: headerTitle, 
-          headerStyle: { backgroundColor: '#E53935' }, // Use a consistent emergency color
+          title: 'Emergency Procedures', 
+          headerStyle: { backgroundColor: '#E53935' },
           headerTintColor: '#fff',
         }} 
       />
-      <View style={styles.container}>
-        <Text style={styles.title}>{procedure.title}</Text>
-        <View style={styles.stepList}>
-          {procedure.content.map((step, index) => (
-            <View key={index} style={styles.stepItem}>
-              <Text style={styles.stepNumber}>{index + 1}.</Text>
-              <Text style={styles.stepText}>{step}</Text>
-            </View>
-          ))}
+
+      <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
+        <View style={styles.container}>
+          <Text style={styles.title}>Select a Procedure</Text>
+          <View style={styles.grid}>
+            {procedures.map((item) => (
+              <Link key={item.key} href={`/procedures/${item.key}` as any} asChild>
+                <TouchableOpacity style={styles.card}>
+                  {item.icon}
+                  <Text style={styles.cardTitle}>{item.title}</Text>
+                </TouchableOpacity>
+              </Link>
+            ))}
+          </View>
         </View>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {
@@ -122,15 +54,18 @@ const styles = StyleSheet.create({
     marginBottom: 25,
     textAlign: 'center',
   },
-  stepList: {
-    paddingHorizontal: 5,
-  },
-  stepItem: {
+  grid: {
     flexDirection: 'row',
-    marginBottom: 20,
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+  },
+  card: {
+    width: '48%',
     backgroundColor: '#fff',
-    padding: 15,
+    paddingVertical: 25,
     borderRadius: 10,
+    alignItems: 'center',
+    marginBottom: 15,
     borderLeftWidth: 4,
     borderLeftColor: '#E53935',
     shadowColor: '#000',
@@ -139,23 +74,11 @@ const styles = StyleSheet.create({
     shadowRadius: 3,
     elevation: 3,
   },
-  stepNumber: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#E53935',
-    marginRight: 10,
-    alignSelf: 'flex-start',
-    minWidth: 25,
-  },
-  stepText: {
-    flex: 1,
+  cardTitle: {
     fontSize: 16,
-    lineHeight: 24,
-    color: '#444',
-  },
-  errorText: {
-    fontSize: 18,
-    color: '#E53935',
+    color: '#333',
+    fontWeight: '600',
+    marginTop: 10,
     textAlign: 'center',
-  }
+  },
 });
