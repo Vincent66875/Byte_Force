@@ -1,7 +1,6 @@
-import React, { useRef, useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Dimensions, Image, TouchableOpacity } from 'react-native';
 import { Stack } from 'expo-router';
-import { Asset } from 'expo-asset';
+import React, { useRef, useState } from 'react';
+import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const { width } = Dimensions.get('window');
 
 // Example data with image and text per step
