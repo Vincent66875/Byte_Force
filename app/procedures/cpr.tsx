@@ -1,5 +1,6 @@
+import { Audio } from 'expo-av';
 import { Stack } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const { width } = Dimensions.get('window');
 
@@ -9,40 +10,57 @@ const cprSteps = [
     key: '1',
     text: 'Check the scene for safety and ensure the person is on a firm, flat surface.',
     image: require('../images/cpr/cpr1.jpg'), // replace with your image
+    audio: require('../tts/cpr/cpr1.mp3'),
   },
   {
     key: '2',
     text: 'Check for breathing. If unresponsive and not breathing, call emergency services immediately.',
     image: require('../images/cpr/cpr2.jpg'),
+    audio: require('../tts/cpr/cpr2.mp3'),
   },
   {
     key: '3',
-    text: 'Open the patient\' airway using the head-tlit to make sure suffucation won\'t happen.',
+    text: 'Open the patient\'s airway using the head-tilt to make sure suffucation won\'t happen.',
     image: require('../images/cpr/cpr3.jpg'),
+    audio: require('../tts/cpr/cpr3.mp3'),
   },
   {
     key: '4',
     text: 'Perform 30 compressions followed by 2 rescue breaths if trained.',
     image: require('../images/cpr/cpr4.jpg'),
+    audio: require('../tts/cpr/cpr4.mp3'),
   },
   {
     key: '5',
     text: 'Continue until professional help arrives or the person shows signs of life.',
     image: require('../images/cpr/cpr5.jpg'),
-  },
-  {
-    key: '6',
-    text: 'Continue until professional help arrives or the person shows signs of life.',
-    image: require('../images/cpr/cpr6.jpg'),
+    audio: require('../tts/cpr/cpr5.mp3'),
   },
 ];
 
 export default function CPRCarouselScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
+  const sound = useRef<Audio.Sound | null>(null);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
-    if (viewableItems.length > 0) setCurrentIndex(viewableItems[0].index);
+  const onViewableItemsChanged = useRef(async ({ viewableItems }: any) => {
+    if (viewableItems.length > 0) {
+      const newIndex = viewableItems[0].index;
+      setCurrentIndex(newIndex);
+
+      // Stop any previous sound
+      if (sound.current) {
+        await sound.current.stopAsync();
+        await sound.current.unloadAsync();
+      }
+
+      // Load new sound
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        cprSteps[newIndex].audio
+      );
+      sound.current = newSound;
+      await newSound.playAsync();
+    }
   }).current;
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
@@ -58,6 +76,14 @@ export default function CPRCarouselScreen() {
       flatListRef.current?.scrollToIndex({ index: currentIndex - 1 });
     }
   };
+
+  useEffect(() => {
+    return sound.current
+      ? () => {
+          sound.current?.unloadAsync();
+        }
+      : undefined;
+  }, []);
 
   return (
 
