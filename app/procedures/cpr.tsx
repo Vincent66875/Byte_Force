@@ -1,3 +1,4 @@
+import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import { Stack } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -84,6 +85,19 @@ export default function CPRCarouselScreen() {
         }
       : undefined;
   }, []);
+
+  useFocusEffect(
+  React.useCallback(() => {
+    return () => {
+      // Screen is unfocused — stop and unload audio
+      if (sound.current) {
+        sound.current.stopAsync().catch(() => {});
+        sound.current.unloadAsync().catch(() => {});
+        sound.current = null;
+      }
+    };
+  }, [])
+);
 
   return (
 
