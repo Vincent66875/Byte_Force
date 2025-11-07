@@ -6,40 +6,37 @@ export interface ProcedureBookmark {
   id: string;
   procedureKey: string; // e.g., 'cpr', 'bleed', 'choke'
   procedureTitle: string;
-  currentStep: number; // Which step the user is on
+  currentStep: number; // Which step the user is on (0-based index)
   totalSteps: number;
-  lastAccessed: string; // ISO timestamp
-  startedAt: string; // ISO timestamp
+  lastAccessed?: string; // ISO timestamp
+  createdAt: string; // ISO timestamp
 }
 
-// Hardcoded bookmarks data for prototype
-export const MOCK_BOOKMARKS: ProcedureBookmark[] = [
+// Hardcoded bookmarks data for prototype - all start with no progress
+export const INITIAL_BOOKMARKS: ProcedureBookmark[] = [
   {
     id: '1',
     procedureKey: 'cpr',
     procedureTitle: 'CPR',
-    currentStep: 3,
-    totalSteps: 6,
-    lastAccessed: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 minutes ago
-    startedAt: new Date(Date.now() - 1000 * 60 * 10).toISOString(), // 10 minutes ago
+    currentStep: 0, // Start at step 0
+    totalSteps: 5,
+    createdAt: new Date().toISOString(),
   },
   {
     id: '2',
     procedureKey: 'choke',
     procedureTitle: 'Choking',
-    currentStep: 2,
+    currentStep: 0, // Start at step 0
     totalSteps: 5,
-    lastAccessed: new Date(Date.now() - 1000 * 60 * 60).toISOString(), // 1 hour ago
-    startedAt: new Date(Date.now() - 1000 * 60 * 65).toISOString(), // 1 hour 5 min ago
+    createdAt: new Date().toISOString(),
   },
   {
     id: '3',
     procedureKey: 'bleed',
     procedureTitle: 'Severe Bleeding',
-    currentStep: 1,
+    currentStep: 0, // Start at step 0
     totalSteps: 4,
-    lastAccessed: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    startedAt: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    createdAt: new Date().toISOString(),
   },
 ];
 

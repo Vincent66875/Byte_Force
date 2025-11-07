@@ -1,6 +1,7 @@
+import { useBookmarks } from '@/contexts/BookmarkContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
-import { Stack } from 'expo-router';
+import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const { width } = Dimensions.get('window');
@@ -40,14 +41,25 @@ const cprSteps = [
 ];
 
 export default function CPRCarouselScreen() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Get the step parameter from the URL (from bookmarks)
+  const params = useLocalSearchParams();
+  const initialStep = params.step ? parseInt(params.step as string, 10) : 0;
+
+  // Get bookmark context to update progress
+  const { updateBookmarkProgress } = useBookmarks();
+
+  const [currentIndex, setCurrentIndex] = useState(initialStep);
   const flatListRef = useRef<FlatList>(null);
   const sound = useRef<Audio.Sound | null>(null);
+  const hasScrolledToInitial = useRef(false);
 
   const onViewableItemsChanged = useRef(async ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
       setCurrentIndex(newIndex);
+
+      // Update bookmark progress
+      updateBookmarkProgress('cpr', newIndex);
 
       // Stop any previous sound
       if (sound.current) {
@@ -77,6 +89,20 @@ export default function CPRCarouselScreen() {
       flatListRef.current?.scrollToIndex({ index: currentIndex - 1 });
     }
   };
+
+  // Scroll to the initial step when component mounts (from bookmark)
+  useEffect(() => {
+    if (initialStep > 0 && !hasScrolledToInitial.current) {
+      // Use a small delay to ensure FlatList is ready
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: initialStep,
+          animated: false
+        });
+        hasScrolledToInitial.current = true;
+      }, 100);
+    }
+  }, [initialStep]);
 
   useEffect(() => {
     return sound.current

@@ -1,23 +1,23 @@
-import { Stack, Link } from 'expo-router';
-import React, { useState } from 'react';
+import { useBookmarks } from '@/contexts/BookmarkContext';
+import { getProgressPercentage, getTimeAgo } from '@/types/bookmark';
+import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
+import { Link, Stack } from 'expo-router';
+import React from 'react';
 import {
+  Alert,
   ScrollView,
   StyleSheet,
   Text,
-  View,
   TouchableOpacity,
-  Alert,
+  View,
 } from 'react-native';
-import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
-import {
-  MOCK_BOOKMARKS,
-  ProcedureBookmark,
-  getTimeAgo,
-  getProgressPercentage,
-} from '@/types/bookmark';
 
 export default function BookmarksScreen() {
-  const [bookmarks, setBookmarks] = useState<ProcedureBookmark[]>(MOCK_BOOKMARKS);
+  // Use global bookmark context to track progress across screens
+  const { bookmarks, removeBookmark } = useBookmarks();
+
+  // Only show bookmarks that have been accessed at least once
+  const activeBookmarks = bookmarks.filter((b) => b.lastAccessed !== undefined);
 
   const handleRemoveBookmark = (id: string) => {
     Alert.alert(
@@ -29,7 +29,7 @@ export default function BookmarksScreen() {
           text: 'Remove',
           style: 'destructive',
           onPress: () => {
-            setBookmarks(bookmarks.filter((b) => b.id !== id));
+            removeBookmark(id);
           },
         },
       ]
@@ -49,7 +49,7 @@ export default function BookmarksScreen() {
         <View style={styles.content}>
           <Text style={styles.title}>In-Progress Procedures</Text>
 
-          {bookmarks.length === 0 ? (
+          {activeBookmarks.length === 0 ? (
             <View style={styles.emptyState}>
               <FontAwesome5 name="bookmark" size={60} color="#ccc" />
               <Text style={styles.emptyText}>No bookmarked procedures</Text>
@@ -59,16 +59,21 @@ export default function BookmarksScreen() {
             </View>
           ) : (
             <View style={styles.bookmarkList}>
-              {bookmarks.map((bookmark) => {
+              {activeBookmarks.map((bookmark) => {
+                // Calculate progress: currentStep is 0-based, so add 1 for display
+                const displayStep = bookmark.currentStep + 1;
                 const progress = getProgressPercentage(
-                  bookmark.currentStep,
+                  displayStep,
                   bookmark.totalSteps
                 );
 
                 return (
                   <View key={bookmark.id} style={styles.bookmarkCard}>
                     <Link
-                      href={`/procedures/${bookmark.procedureKey}` as any}
+                      href={{
+                        pathname: `/procedures/${bookmark.procedureKey}` as any,
+                        params: { step: bookmark.currentStep.toString() },
+                      }}
                       asChild
                     >
                       <TouchableOpacity style={styles.bookmarkContent}>
@@ -95,7 +100,7 @@ export default function BookmarksScreen() {
                         <View style={styles.progressSection}>
                           <View style={styles.progressInfo}>
                             <Text style={styles.stepText}>
-                              Step {bookmark.currentStep} of {bookmark.totalSteps}
+                              Step {displayStep} of {bookmark.totalSteps}
                             </Text>
                             <Text style={styles.percentageText}>{progress}%</Text>
                           </View>
@@ -112,10 +117,14 @@ export default function BookmarksScreen() {
                         <View style={styles.bookmarkFooter}>
                           <Text style={styles.timeText}>
                             <MaterialIcons name="access-time" size={14} color="#999" />{' '}
-                            Last accessed {getTimeAgo(bookmark.lastAccessed)}
+                            {bookmark.lastAccessed
+                              ? `Last accessed ${getTimeAgo(bookmark.lastAccessed)}`
+                              : 'Not started yet'}
                           </Text>
                           <View style={styles.continueButton}>
-                            <Text style={styles.continueText}>Continue</Text>
+                            <Text style={styles.continueText}>
+                              {bookmark.currentStep > 0 ? 'Continue' : 'Start'}
+                            </Text>
                             <FontAwesome5 name="arrow-right" size={12} color="#E53935" />
                           </View>
                         </View>
@@ -127,7 +136,7 @@ export default function BookmarksScreen() {
             </View>
           )}
 
-          {bookmarks.length > 0 && (
+          {activeBookmarks.length > 0 && (
             <View style={styles.infoBox}>
               <MaterialIcons name="info-outline" size={20} color="#666" />
               <Text style={styles.infoText}>
