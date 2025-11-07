@@ -1,3 +1,13 @@
+/**
+ * Profile Screen
+ * Displays and allows editing of user profile information.
+ * Data Flow:
+ * - Loads initial data from MOCK_USER constant
+ * - Changes are stored in local state during editing
+ * - Cancel button resets to original MOCK_USER data
+ * - Save button shows success alert
+ */
+
 import { MOCK_USER, UserProfile } from '@/types/user';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
@@ -13,21 +23,32 @@ import {
 } from 'react-native';
 
 export default function ProfileScreen() {
+  // Local state for user data - initialized with mock data for prototype
   const [userData, setUserData] = useState<UserProfile>(MOCK_USER);
+
+  // Track whether user is currently editing the profile
   const [isEditing, setIsEditing] = useState(false);
 
+  /**
+   * Handles saving profile changes
+   */
   const handleSave = () => {
     // Showing a saved update
     Alert.alert('Success', 'Profile updated successfully!');
     setIsEditing(false);
   };
 
+  /**
+   * Handles canceling profile edits
+   */
   const handleCancel = () => {
-    // Reset to original data
-    setUserData(MOCK_USER);
+    setUserData(MOCK_USER); // Discard changes
     setIsEditing(false);
   };
 
+  /**
+   * Updates a single field in the user profile
+   */
   const updateField = (field: keyof UserProfile, value: any) => {
     setUserData({ ...userData, [field]: value });
   };

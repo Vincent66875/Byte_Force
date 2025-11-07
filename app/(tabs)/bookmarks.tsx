@@ -1,3 +1,16 @@
+/**
+ * Displays a list of in-progress emergency procedures that the user has started.
+ * Shows progress bars, step counts, and allows users to resume procedures or remove bookmarks.
+ *
+ * - Only shows procedures that have been accessed at least once (lastAccessed is defined)
+ * - Displays progress percentage and current step for each procedure
+ * - Allows resuming procedures from the last viewed step
+ * - Supports removing bookmarks with confirmation dialog
+ * - Shows empty state when no procedures have been started
+ * - Clicking a bookmark navigates to the procedure with a step parameter
+ * - The procedure screen reads the step parameter and scrolls to that position
+ */
+
 import { useBookmarks } from '@/contexts/BookmarkContext';
 import { getProgressPercentage, getTimeAgo } from '@/types/bookmark';
 import { FontAwesome5, MaterialIcons } from '@expo/vector-icons';
@@ -16,9 +29,20 @@ export default function BookmarksScreen() {
   // Use global bookmark context to track progress across screens
   const { bookmarks, removeBookmark } = useBookmarks();
 
-  // Only show bookmarks that have been accessed at least once
+  /**
+   * Filter to only show bookmarks that have been accessed
+   * Bookmarks start with lastAccessed = undefined, which means they haven't
+   * been opened yet. We only want to show procedures the user has actually started.
+   */
   const activeBookmarks = bookmarks.filter((b) => b.lastAccessed !== undefined);
 
+  /**
+   * Handles removing a bookmark with user confirmation
+   *
+   * Shows a dialog to confirm before removing the bookmark.
+   *
+   * @param id - The unique ID of the bookmark to remove
+   */
   const handleRemoveBookmark = (id: string) => {
     Alert.alert(
       'Remove Bookmark',
@@ -59,9 +83,16 @@ export default function BookmarksScreen() {
             </View>
           ) : (
             <View style={styles.bookmarkList}>
+              {/* Render each active bookmark as a card */}
               {activeBookmarks.map((bookmark) => {
-                // Calculate progress: currentStep is 0-based, so add 1 for display
+                /**
+                 * Convert 0-based index to 1-based display number
+                 */
                 const displayStep = bookmark.currentStep + 1;
+
+                /**
+                 * Calculate completion percentage for progress bar
+                 */
                 const progress = getProgressPercentage(
                   displayStep,
                   bookmark.totalSteps

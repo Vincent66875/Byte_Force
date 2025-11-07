@@ -93,7 +93,6 @@ export default function CPRCarouselScreen() {
   // Scroll to the initial step when component mounts (from bookmark)
   useEffect(() => {
     if (initialStep > 0 && !hasScrolledToInitial.current) {
-      // Use a small delay to ensure FlatList is ready
       setTimeout(() => {
         flatListRef.current?.scrollToIndex({
           index: initialStep,

@@ -1,5 +1,6 @@
-import { Stack } from 'expo-router';
-import React, { useRef, useState } from 'react';
+import { useBookmarks } from '@/contexts/BookmarkContext';
+import { Stack, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 const { width } = Dimensions.get('window');
 
@@ -38,12 +39,39 @@ const bleedSteps = [
 ];
 
 export default function BleedCarouselScreen() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // Get the step parameter from the URL (from bookmarks)
+  const params = useLocalSearchParams();
+  const initialStep = params.step ? parseInt(params.step as string, 10) : 0;
+
+  // Get bookmark context to update progress
+  const { updateBookmarkProgress } = useBookmarks();
+
+  const [currentIndex, setCurrentIndex] = useState(initialStep);
   const flatListRef = useRef<FlatList>(null);
+  const hasScrolledToInitial = useRef(false);
 
   const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
-    if (viewableItems.length > 0) setCurrentIndex(viewableItems[0].index);
+    if (viewableItems.length > 0) {
+      const newIndex = viewableItems[0].index;
+      setCurrentIndex(newIndex);
+
+      // Update bookmark progress
+      updateBookmarkProgress('bleed', newIndex);
+    }
   }).current;
+
+  // Scroll to the initial step when component mounts (from bookmark)
+  useEffect(() => {
+    if (initialStep > 0 && !hasScrolledToInitial.current) {
+      setTimeout(() => {
+        flatListRef.current?.scrollToIndex({
+          index: initialStep,
+          animated: false
+        });
+        hasScrolledToInitial.current = true;
+      }, 100);
+    }
+  }, [initialStep]);
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 
