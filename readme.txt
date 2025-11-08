@@ -12,20 +12,23 @@ A. INSTALL NVM:
 If you do not have 'nvm', install it using the following script:
 $ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 
-After installation, load the environment in your current shell:
-$ source ~/.bashrc
+B. ACTIVATE NVM MANUALLY (If automatic loading fails):
+If 'source ~/.bashrc' or 'source ~/.profile' returns an error, run these two commands exactly as they are shown below:
 
-B. ACTIVATE PROJECT NODE VERSION:
+$ export NVM_DIR="$HOME/.nvm"
+$ [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+C. ACTIVATE PROJECT NODE VERSION:
 This command installs and uses the required Node v18:
 $ nvm install 18
 $ nvm use 18
 
-C. VERIFY INSTALLATION:
+D. VERIFY INSTALLATION:
 Confirm Node and npm are available:
 $ node -v  
 $ npm -v
 
-D. MOBILE PREVIEW:
+E. MOBILE PREVIEW:
 To view on a mobile device, download the **Expo Go App**.
 
 =======================================================
