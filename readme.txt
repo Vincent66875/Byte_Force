@@ -1,23 +1,32 @@
 Byte-App: Emergency Procedures Dashboard - Setup Guide
 
 This file provides instructions for setting up and running the Byte-App on a School of Computing Linux machine. The project uses React Native/Expo and is managed via a Makefile.
+This guide explains how to set up and run the Byte-App on a School of Computing Linux machine. We use Node Version Manager (nvm) to create an isolated, user-level environment (similar to a venv) since root/sudo access is not available.
 
 =======================================================
-1. PREREQUISITES
+1. ENVIRONMENT SETUP (Isolated Node Runtime)
 =======================================================
-You must have Node.js (v18+) and npm installed.
+The project requires Node.js v18+. We use nvm to install and manage this version in your home directory, avoiding system-wide installation errors.
 
-A. CHECK AND INSTALL NODE.JS & NPM:
-Check current versions:
-$ node -v
+A. INSTALL NVM:
+If you do not have 'nvm', install it using the following script:
+$ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+
+After installation, load the environment in your current shell:
+$ source ~/.bashrc
+
+B. ACTIVATE PROJECT NODE VERSION:
+This command installs and uses the required Node v18:
+$ nvm install 18
+$ nvm use 18
+
+C. VERIFY INSTALLATION:
+Confirm Node and npm are available:
+$ node -v  
 $ npm -v
 
-If Node.js or npm are missing, use the following commands to install them:
-$ sudo apt update
-$ sudo apt install nodejs npm
-
-B. MOBILE PREVIEW:
-To view on a mobile device, download the **Expo Go App** (from the App Store or Play Store).
+D. MOBILE PREVIEW:
+To view on a mobile device, download the **Expo Go App**.
 
 =======================================================
 2. SETUP AND INSTALLATION
