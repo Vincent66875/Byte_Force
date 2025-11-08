@@ -7,13 +7,17 @@ This file provides instructions for setting up and running the Byte-App on a Sch
 =======================================================
 You must have Node.js (v18+) and npm installed.
 
-CHECK INSTALLATION:
-Use these commands to verify:
+A. CHECK AND INSTALL NODE.JS & NPM:
+Check current versions:
 $ node -v
 $ npm -v
 
-MOBILE PREVIEW:
-To view on a mobile device, download the Expo Go App (from the App Store or Play Store).
+If Node.js or npm are missing, use the following commands to install them:
+$ sudo apt update
+$ sudo apt install nodejs npm
+
+B. MOBILE PREVIEW:
+To view on a mobile device, download the **Expo Go App** (from the App Store or Play Store).
 
 =======================================================
 2. SETUP AND INSTALLATION
@@ -21,7 +25,7 @@ To view on a mobile device, download the Expo Go App (from the App Store or Play
 Use the 'git' and 'make' utilities for setup.
 
 A. CLONE THE REPOSITORY:
-$ git clone https://github.com/Vincent66875/Byte_Force.git
+$ git clone https://github.com/<your-username>/byte-app.git
 $ cd byte-app
 
 B. INSTALL DEPENDENCIES:
@@ -40,7 +44,7 @@ The terminal will display a QR code and a local URL.
 
 B. VIEW THE INTERFACE:
 
-- ON MOBILE: Open the Expo Go app on your phone and scan the QR code displayed in the terminal.
+- ON MOBILE: Open the Expo Go app on your phone and **scan the QR code** displayed in the terminal.
 - IN BROWSER: Run the following command, then open the displayed local URL (e.g., http://localhost:19006):
   $ make web
 
