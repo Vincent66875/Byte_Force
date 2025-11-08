@@ -38,7 +38,7 @@ Use the 'git' and 'make' utilities for setup.
 
 A. CLONE THE REPOSITORY:
 $ git clone https://github.com/Vincent66875/Byte_Force.git
-$ cd byte-app
+$ cd Byte_Force
 
 B. INSTALL DEPENDENCIES:
 This uses the Makefile to run 'npm install'.
