@@ -37,7 +37,7 @@ To view on a mobile device, download the **Expo Go App**.
 Use the 'git' and 'make' utilities for setup.
 
 A. CLONE THE REPOSITORY:
-$ git clone https://github.com/<your-username>/byte-app.git
+$ git clone https://github.com/Vincent66875/Byte_Force.git
 $ cd byte-app
 
 B. INSTALL DEPENDENCIES:
