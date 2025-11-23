@@ -1,7 +1,7 @@
+import { FontAwesome5, Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { Stack } from 'expo-router';
 import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, Switch } from 'react-native';
-import { FontAwesome5, MaterialCommunityIcons, Ionicons } from '@expo/vector-icons';
+import { ScrollView, StyleSheet, Switch, Text, View } from 'react-native';
 
 type SettingOption = {
   key: string;
@@ -11,7 +11,7 @@ type SettingOption = {
 };
 
 export default function SettingsScreen() {
-  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(true);
 
   const settingsOptions: SettingOption[] = [
     { key: 'language', title: 'Language Selection', icon: <Ionicons name="language" size={36} color="#E53935" /> },

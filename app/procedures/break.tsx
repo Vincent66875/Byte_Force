@@ -1,4 +1,7 @@
 import { useBookmarks } from '@/contexts/BookmarkContext';
+import { useReactionTimer } from '@/contexts/ReactionTimerContext';
+import { useFocusEffect } from '@react-navigation/native';
+import { Audio } from 'expo-av';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -8,33 +11,39 @@ const { width } = Dimensions.get('window');
 const breakSteps = [
   {
     key: '1',
-    text: 'Step 1',
+    text: 'Call 911 if the break is severe, involves the head/neck/back, or bone is protruding. Do not move the person unless necessary.',
     image: require('../images/injuryPlaceholder.jpg'), // replace with your image
+    audio: require('../tts/break/break1.mp3'),
   },
   {
     key: '2',
-    text: 'Step 2',
+    text: 'Do NOT try to realign the bone or push protruding bones back in. Keep the injured area as still as possible.',
     image: require('../images/injuryPlaceholder.jpg'),
+    audio: require('../tts/break/break2.mp3'),
   },
   {
     key: '3',
-    text: 'Step 3',
+    text: 'Immobilize the injured area using a splint or padding. You can use rolled newspapers, boards, or pillows to keep it stable.',
     image: require('../images/injuryPlaceholder.jpg'),
+    audio: require('../tts/break/break3.mp3'),
   },
   {
     key: '4',
-    text: 'Step 4',
+    text: 'Apply ice packs wrapped in cloth to reduce swelling. Do not apply ice directly to skin. Ice for 15-20 minutes at a time.',
     image: require('../images/injuryPlaceholder.jpg'),
+    audio: require('../tts/break/break4.mp3'),
   },
   {
     key: '5',
-    text: 'Step 5',
+    text: 'Treat for shock if needed - keep the person warm and lying down. Elevate legs slightly if no spinal injury is suspected.',
     image: require('../images/injuryPlaceholder.jpg'),
+    audio: require('../tts/break/break5.mp3'),
   },
   {
     key: '6',
-    text: 'Step 6',
+    text: 'Monitor circulation below the injury - check for numbness, tingling, or color changes. Seek medical attention immediately.',
     image: require('../images/injuryPlaceholder.jpg'),
+    audio: require('../tts/break/break6.mp3'),
   },
 ];
 
@@ -45,20 +54,76 @@ export default function BreakCarouselScreen() {
 
   // Get bookmark context to update progress
   const { updateBookmarkProgress } = useBookmarks();
+  const { stopTimer } = useReactionTimer();
 
   const [currentIndex, setCurrentIndex] = useState(initialStep);
   const flatListRef = useRef<FlatList>(null);
+  const sound = useRef<Audio.Sound | null>(null);
   const hasScrolledToInitial = useRef(false);
+  const hasPlayedInitialAudio = useRef(false);
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: any) => {
+  // Function to play audio for a specific step
+  const playAudio = async (index: number) => {
+    try {
+      // Stop any previous sound
+      if (sound.current) {
+        await sound.current.stopAsync();
+        await sound.current.unloadAsync();
+      }
+
+      // Load and play new sound
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        breakSteps[index].audio
+      );
+      sound.current = newSound;
+      await newSound.playAsync();
+    } catch (error) {
+      console.log('Error playing audio:', error);
+    }
+  };
+
+  const onViewableItemsChanged = useRef(async ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
       const newIndex = viewableItems[0].index;
       setCurrentIndex(newIndex);
 
       // Update bookmark progress
       updateBookmarkProgress('break', newIndex);
+
+      // Only play audio if we've already played the initial audio
+      // This prevents double playback on first render
+      if (hasPlayedInitialAudio.current) {
+        await playAudio(newIndex);
+      }
     }
   }).current;
+
+  // Set audio mode and play initial audio when component mounts
+  useEffect(() => {
+    const setupAudio = async () => {
+      try {
+        // Stop reaction timer when procedure is loaded
+        await stopTimer('Broken Bone');
+
+        // Set audio mode for playback
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: true,
+        });
+
+        // Play initial audio if not already played
+        if (!hasPlayedInitialAudio.current) {
+          await playAudio(initialStep);
+          hasPlayedInitialAudio.current = true;
+        }
+      } catch (error) {
+        console.log('Error setting up audio:', error);
+      }
+    };
+
+    setupAudio();
+  }, []);
 
   // Scroll to the initial step when component mounts (from bookmark)
   useEffect(() => {
@@ -72,6 +137,27 @@ export default function BreakCarouselScreen() {
       }, 100);
     }
   }, [initialStep]);
+
+  useEffect(() => {
+    return sound.current
+      ? () => {
+          sound.current?.unloadAsync();
+        }
+      : undefined;
+  }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      return () => {
+        // Screen is unfocused — stop and unload audio
+        if (sound.current) {
+          sound.current.stopAsync().catch(() => {});
+          sound.current.unloadAsync().catch(() => {});
+          sound.current = null;
+        }
+      };
+    }, [])
+  );
 
   const viewConfigRef = useRef({ viewAreaCoveragePercentThreshold: 50 });
 

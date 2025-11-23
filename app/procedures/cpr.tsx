@@ -1,4 +1,5 @@
 import { useBookmarks } from '@/contexts/BookmarkContext';
+import { useReactionTimer } from '@/contexts/ReactionTimerContext';
 import { useFocusEffect } from '@react-navigation/native';
 import { Audio } from 'expo-av';
 import { Stack, useLocalSearchParams } from 'expo-router';
@@ -47,11 +48,33 @@ export default function CPRCarouselScreen() {
 
   // Get bookmark context to update progress
   const { updateBookmarkProgress } = useBookmarks();
+  const { stopTimer } = useReactionTimer();
 
   const [currentIndex, setCurrentIndex] = useState(initialStep);
   const flatListRef = useRef<FlatList>(null);
   const sound = useRef<Audio.Sound | null>(null);
   const hasScrolledToInitial = useRef(false);
+  const hasPlayedInitialAudio = useRef(false);
+
+  // Function to play audio for a specific step
+  const playAudio = async (index: number) => {
+    try {
+      // Stop any previous sound
+      if (sound.current) {
+        await sound.current.stopAsync();
+        await sound.current.unloadAsync();
+      }
+
+      // Load and play new sound
+      const { sound: newSound } = await Audio.Sound.createAsync(
+        cprSteps[index].audio
+      );
+      sound.current = newSound;
+      await newSound.playAsync();
+    } catch (error) {
+      console.log('Error playing audio:', error);
+    }
+  };
 
   const onViewableItemsChanged = useRef(async ({ viewableItems }: any) => {
     if (viewableItems.length > 0) {
@@ -61,18 +84,11 @@ export default function CPRCarouselScreen() {
       // Update bookmark progress
       updateBookmarkProgress('cpr', newIndex);
 
-      // Stop any previous sound
-      if (sound.current) {
-        await sound.current.stopAsync();
-        await sound.current.unloadAsync();
+      // Only play audio if we've already played the initial audio
+      // This prevents double playback on first render
+      if (hasPlayedInitialAudio.current) {
+        await playAudio(newIndex);
       }
-
-      // Load new sound
-      const { sound: newSound } = await Audio.Sound.createAsync(
-        cprSteps[newIndex].audio
-      );
-      sound.current = newSound;
-      await newSound.playAsync();
     }
   }).current;
 
@@ -89,6 +105,33 @@ export default function CPRCarouselScreen() {
       flatListRef.current?.scrollToIndex({ index: currentIndex - 1 });
     }
   };
+
+  // Set audio mode and play initial audio when component mounts
+  useEffect(() => {
+    const setupAudio = async () => {
+      try {
+        // Stop reaction timer when procedure is loaded
+        await stopTimer('CPR');
+
+        // Set audio mode for playback
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          staysActiveInBackground: false,
+          shouldDuckAndroid: true,
+        });
+
+        // Play initial audio if not already played
+        if (!hasPlayedInitialAudio.current) {
+          await playAudio(initialStep);
+          hasPlayedInitialAudio.current = true;
+        }
+      } catch (error) {
+        console.log('Error setting up audio:', error);
+      }
+    };
+
+    setupAudio();
+  }, []);
 
   // Scroll to the initial step when component mounts (from bookmark)
   useEffect(() => {

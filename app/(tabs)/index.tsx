@@ -1,7 +1,8 @@
-import { Stack, Link } from 'expo-router';
-import React from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
+import { useReactionTimer } from '@/contexts/ReactionTimerContext';
 import { FontAwesome5, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Link, Stack } from 'expo-router';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
 const procedures = [
   { key: 'cpr', title: 'CPR', icon: <FontAwesome5 name="hands-helping" size={36} color="#E53935" /> },
@@ -12,19 +13,27 @@ const procedures = [
   { key: 'choke', title: 'Choking', icon: <MaterialCommunityIcons name="lungs" size={36} color="#32e64a" /> },
 ];
 export default function ProcedureListScreen() {
+  const { isTimerActive } = useReactionTimer();
+
   return (
     <>
-      <Stack.Screen 
-        options={{ 
-          title: 'Emergency Procedures', 
+      <Stack.Screen
+        options={{
+          title: 'Emergency Procedures',
           headerStyle: { backgroundColor: '#E53935' },
           headerTintColor: '#fff',
-        }} 
+        }}
       />
 
       <ScrollView style={{ flex: 1, backgroundColor: '#fff' }}>
         <View style={styles.container}>
           <Text style={styles.title}>Select a Procedure</Text>
+          {isTimerActive && (
+            <View style={styles.timerBanner}>
+              <FontAwesome5 name="stopwatch" size={16} color="#fff" />
+              <Text style={styles.timerBannerText}>Timer Active - Select a procedure</Text>
+            </View>
+          )}
           <View style={styles.grid}>
             {procedures.map((item) => (
               <Link key={item.key} href={`/procedures/${item.key}` as any} asChild>
@@ -80,5 +89,20 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     marginTop: 10,
     textAlign: 'center',
+  },
+  timerBanner: {
+    backgroundColor: '#4CAF50',
+    padding: 12,
+    borderRadius: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 20,
+  },
+  timerBannerText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
   },
 });
